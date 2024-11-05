@@ -27,6 +27,7 @@ class RobotariumABC(ABC):
         if (initial_conditions.size > 0):
             assert initial_conditions.shape == (3, number_of_robots), "Initial conditions provided when creating the Robotarium object must of size 3xN, where N is the number of robots used. Expected a 3 x %r array but recieved a %r x %r array." % (number_of_robots, initial_conditions.shape[0], initial_conditions.shape[1])
 
+        self.robot_color = '#FFD700'  # Default to green or any other default color
 
         self.number_of_robots = number_of_robots
         self.show_figure = show_figure
@@ -77,9 +78,12 @@ class RobotariumABC(ABC):
         if(self.show_figure):
             self.axes.set_axis_off()
             for i in range(number_of_robots):
+                
                 # p = patches.RegularPolygon((self.poses[:2, i]), 4, math.sqrt(2)*self.robot_radius, self.poses[2,i]+math.pi/4, facecolor='#FFD700', edgecolor = 'k')
+                print(f"Setting robot color for robot {i}: facecolor={self.robot_color}")
+
                 p = patches.Rectangle((self.poses[:2, i]+self.robot_length/2*np.array((np.cos(self.poses[2, i]+math.pi/2), np.sin(self.poses[2, i]+math.pi/2)))+\
-                                                0.04*np.array((-np.sin(self.poses[2, i]+math.pi/2), np.cos(self.poses[2, i]+math.pi/2)))), self.robot_length, self.robot_width, angle=(self.poses[2, i] + math.pi/4) * 180/math.pi, facecolor='#FFD700', edgecolor='k')
+                                                0.04*np.array((-np.sin(self.poses[2, i]+math.pi/2), np.cos(self.poses[2, i]+math.pi/2)))), self.robot_length, self.robot_width, angle=(self.poses[2, i] + math.pi/4) * 180/math.pi, facecolor=self.robot_color , edgecolor='k')
 
                 rled = patches.Circle(self.poses[:2, i]+0.75*self.robot_length/2*np.array((np.cos(self.poses[2, i]), np.sin(self.poses[2, i]))+0.04*np.array((-np.sin(self.poses[2, i]+math.pi/2), np.cos(self.poses[2, i]+math.pi/2)))),
                                        self.robot_length/2/5, fill=False)
@@ -127,6 +131,21 @@ class RobotariumABC(ABC):
             self.figure.set_visible(False)
             plt.draw()
 
+    def set_robot_color(self, color):
+        """Sets the face color of the robots dynamically."""
+        print("Changing robot color to:", color)
+        self.robot_color = color
+        
+        # Apply color to all existing robot chassis patches
+        for i, chassis in enumerate(self.chassis_patches):
+            chassis.set_facecolor(self.robot_color)
+            print(f"Updated color for robot {i}: facecolor={self.robot_color}")
+
+        # Redraw the canvas to immediately apply the color changes
+        self.figure.canvas.draw_idle()
+        self.figure.canvas.flush_events()
+
+            
     def set_velocities(self, ids, velocities):
         self.velocities = velocities
 

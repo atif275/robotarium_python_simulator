@@ -28,6 +28,53 @@ class Robotarium(RobotariumABC):
 
             #Initialize steps
             self._iterations = 0 
+            # Grid properties
+            self.grid_added = False
+            self.cell_width = 0.2
+            self.cell_height = 0.2
+        
+        def add_grid(self, cell_width=0.2, cell_height=0.2):
+            """Adds a grid pattern to the world background."""
+            self.grid_added = True
+            self.cell_width = cell_width
+            self.cell_height = cell_height
+            print("Adding grid to world background...")
+
+
+            # Draw grid
+            for x in np.arange(self.boundaries[0], self.boundaries[0] + self.boundaries[2], cell_width):
+                self.axes.plot([x, x], [self.boundaries[1], self.boundaries[1] + self.boundaries[3]], 'k--', linewidth=0.5)
+            
+            for y in np.arange(self.boundaries[1], self.boundaries[1] + self.boundaries[3], cell_height):
+                self.axes.plot([self.boundaries[0], self.boundaries[0] + self.boundaries[2]], [y, y], 'k--', linewidth=0.5)
+
+            self.figure.canvas.draw_idle()
+            self.figure.canvas.flush_events()
+
+        def add_dynamic_grid(ax, robotarium_instance, cell_size):
+            """
+            Adds a grid to the background of the world with dynamic rows and columns based on cell size.
+            """
+            # Dynamically get the world boundaries
+            world_width = robotarium_instance.boundaries[2]
+            world_height = robotarium_instance.boundaries[3]
+            
+            # Calculate the number of rows and columns based on cell size
+            num_cols = int(world_width / cell_size)
+            num_rows = int(world_height / cell_size)
+            
+            # Draw vertical lines (columns)
+            for i in range(num_cols + 1):
+                x = i * cell_size - world_width / 2  # Adjust to center the grid
+                ax.plot([x, x], [-world_height / 2, world_height / 2], 'gray', linewidth=0.5)
+
+            # Draw horizontal lines (rows)
+            for j in range(num_rows + 1):
+                y = j * cell_size - world_height / 2  # Adjust to center the grid
+                ax.plot([-world_width / 2, world_width / 2], [y, y], 'gray', linewidth=0.5)
+
+            print(f"Added a dynamic grid with {num_cols} columns and {num_rows} rows based on cell size {cell_size}.")
+
 
         def get_poses(self):
             """Returns the states of the agents.
@@ -114,6 +161,15 @@ class Robotarium(RobotariumABC):
                     self.left_wheel_patches[i].orientation = self.poses[2,i] + math.pi/4
 
                     self.left_wheel_patches[i].zorder = 2
+                    #  # Set chassis to green
+                    # self.chassis_patches[i].set_facecolor([0, 1, 0])
+                    # self.chassis_patches[i].set_edgecolor([0, 1, 0])
+
+                    #  # Set LEDs to green as well (if they are currently set to a color)
+                    # self.left_led_patches[i].set_facecolor([0, 1, 0])
+                    # self.right_led_patches[i].set_facecolor([0, 1, 0])
+                    # self.left_led_patches[i].set_edgecolor([0, 1, 0])
+                    # self.right_led_patches[i].set_edgecolor([0, 1, 0])
                     
                     self.right_led_patches[i].center = self.poses[:2, i]+0.75*self.robot_length/2*np.array((np.cos(self.poses[2,i]), np.sin(self.poses[2,i])))-\
                                     0.04*np.array((-np.sin(self.poses[2, i]), np.cos(self.poses[2, i]))) + self.robot_length/2*np.array((np.cos(self.poses[2, i]), np.sin(self.poses[2, i])))
