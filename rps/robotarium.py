@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from rps.robotarium_abc import *
+from rps.robot_configuration import RobotConfigurator
 
 # Robotarium This object provides routines to interface with the Robotarium.
 #
@@ -14,7 +15,9 @@ class Robotarium(RobotariumABC):
 
         def __init__(self, number_of_robots=-1, show_figure=True, sim_in_real_time = True, initial_conditions=np.array([])):
             super().__init__(number_of_robots, show_figure, sim_in_real_time, initial_conditions)
-
+            # Initialize RobotConfigurator for robot visualization control
+            self.configurator = RobotConfigurator(self)
+           
             #Initialize some rendering variables
             self.previous_render_time = time.time()
             self.sim_in_real_time = sim_in_real_time
@@ -143,6 +146,7 @@ class Robotarium(RobotariumABC):
                     self.previous_render_time = t
 
                 for i in range(self.number_of_robots):
+                    settings = self.configurator.get_robot_settings(i)
                     self.chassis_patches[i].xy = self.poses[:2, i]+self.robot_length/2*np.array((np.cos(self.poses[2, i]+math.pi/2), np.sin(self.poses[2, i]+math.pi/2)))+\
                                             0.04*np.array((-np.sin(self.poses[2, i]+math.pi/2), np.cos(self.poses[2, i]+math.pi/2)))  + self.robot_length/2*np.array((np.cos(self.poses[2, i]), np.sin(self.poses[2, i])))
                     
