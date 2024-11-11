@@ -46,7 +46,7 @@ for i in range(N):
     robot_configurator.enable_flashing(i, flash_fill=True, flash_outline=True, fill_flash_speed='fast', outline_flash_speed='fast')
 r.get_poses()
 r.step()
-time.sleep(10)  # Observe flashing effect for 10 seconds
+time.sleep(2)  # Observe flashing effect for 10 seconds
 
 # Step 3: Change transparency levels from high to low over 10 seconds
 for transparency in transparency_sequence:
